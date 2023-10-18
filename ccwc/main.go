@@ -65,10 +65,11 @@ func fetchStats(f *os.File) (Stats, error) {
 		linePattern = [256]uint8{'\n': 1}
 		// https://en.cppreference.com/w/cpp/string/wide/iswspace
 		wsPattern = [256]uint8{' ': 1, '\f': 1, '\n': 1, '\r': 1, '\t': 1, '\v': 1}
+		prevWS    int
 	)
 
-	words, lines, nbytes, prevWS := 0, 0, 0, 0
 	reader := bufio.NewReader(f)
+	stats := Stats{}
 
 	for {
 		b, err := reader.ReadByte()
@@ -79,17 +80,15 @@ func fetchStats(f *os.File) (Stats, error) {
 			return Stats{}, err
 		}
 
-		nbytes++
-		lines += int(linePattern[b])
-		words += int(wsPattern[b]) & prevWS
+		stats.nbytes++
+		stats.lines += int(linePattern[b])
+		stats.words += int(wsPattern[b]) & prevWS
 		prevWS = int(wsPattern[b]) ^ 1
 	}
 
-	return Stats{
-		words:  words + prevWS,
-		lines:  lines,
-		nbytes: nbytes,
-	}, nil
+	stats.words += prevWS
+
+	return stats, nil
 }
 
 func formatStats(opts Opts, filename string, stats Stats) string {
