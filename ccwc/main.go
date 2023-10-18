@@ -7,18 +7,36 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
+type Opts struct {
+	countBytes bool
+	countLines bool
+	countWords bool
+}
+
 func main() {
+	c := flag.Bool("c", false, "Count bytes")
+	l := flag.Bool("l", false, "Count lines")
+	w := flag.Bool("w", false, "Count words")
+
 	flag.Parse()
+
+	opts := Opts{
+		countBytes: *c,
+		countLines: *l,
+		countWords: *w,
+	}
 
 	var (
 		f   *os.File
 		err error
 	)
 
-	if flag.Arg(0) != "" {
-		f, err = os.Open(flag.Arg(0))
+	filename := flag.Arg(0)
+	if filename != "" {
+		f, err = os.Open(filename)
 		if err != nil {
 			log.Fatal("failed to read file: ", err)
 		}
@@ -32,7 +50,7 @@ func main() {
 		log.Fatal("failed to fetch stats: ", err)
 	}
 
-	fmt.Printf("%d %d %d\n", stats.lines, stats.words, stats.nbytes)
+	fmt.Print(formatStats(opts, filename, stats))
 }
 
 type Stats struct {
@@ -71,4 +89,26 @@ func fetchStats(f *os.File) (Stats, error) {
 		lines:  lines,
 		nbytes: nbytes,
 	}, nil
+}
+
+func formatStats(opts Opts, filename string, stats Stats) string {
+	v := make([]string, 0)
+
+	if opts.countLines {
+		v = append(v, fmt.Sprint(stats.lines))
+	}
+	if opts.countWords {
+		v = append(v, fmt.Sprint(stats.words))
+	}
+	if opts.countBytes {
+		v = append(v, fmt.Sprint(stats.nbytes))
+	}
+
+	output := strings.Join(v, "\t")
+
+	if filename != "" {
+		output += "\t" + filename
+	}
+
+	return output + "\n"
 }
