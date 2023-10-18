@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	"bufio"
 	"flag"
 	"fmt"
 	"io"
@@ -10,55 +10,65 @@ import (
 )
 
 func main() {
-	c := flag.Bool("c", false, "Count bytes")
-	l := flag.Bool("l", false, "Count lines")
-
 	flag.Parse()
 
-	data, err := readFile(flag.Arg(0))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if *c {
-		fmt.Printf("%d\t%s\n", len(data), flag.Arg(0))
-	}
-
-	if *l {
-		lines, err := countLines(bytes.NewReader(data))
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("%d\t%s\n", lines, flag.Arg(0))
-	}
-}
-
-func readFile(filename string) ([]byte, error) {
-	return os.ReadFile(filename)
-}
-
-func countLines(data io.Reader) (int, error) {
 	var (
-		lines int
-		read  int
-		err   error
-		sep   = []byte("\n")
+		f   *os.File
+		err error
 	)
 
-	buf := make([]byte, 32*1024)
+	if flag.Arg(0) != "" {
+		f, err = os.Open(flag.Arg(0))
+		if err != nil {
+			log.Fatal("failed to read file: ", err)
+		}
+		defer f.Close()
+	} else {
+		f = os.Stdin
+	}
+
+	stats, err := fetchStats(f)
+	if err != nil {
+		log.Fatal("failed to fetch stats: ", err)
+	}
+
+	fmt.Printf("%d %d %d\n", stats.lines, stats.words, stats.nbytes)
+}
+
+type Stats struct {
+	words  int
+	lines  int
+	nbytes int
+}
+
+func fetchStats(f *os.File) (Stats, error) {
+	var (
+		linePattern = [256]uint8{'\n': 1}
+		// https://en.cppreference.com/w/cpp/string/wide/iswspace
+		wsPattern = [256]uint8{' ': 1, '\f': 1, '\n': 1, '\r': 1, '\t': 1, '\v': 1}
+	)
+
+	words, lines, nbytes, prevWS := 0, 0, 0, 0
+	reader := bufio.NewReader(f)
 
 	for {
-		read, err = data.Read(buf)
+		b, err := reader.ReadByte()
 		if err != nil {
-			break
+			if err == io.EOF {
+				break
+			}
+			return Stats{words: 0, lines: 0, nbytes: 0}, err
 		}
 
-		lines += bytes.Count(buf[:read], sep)
+		nbytes++
+		lines += int(linePattern[b])
+		words += int(wsPattern[b]) & prevWS
+		prevWS = int(wsPattern[b]) ^ 1
 	}
 
-	if err == io.EOF {
-		return lines, nil
-	}
-
-	return 0, nil
+	return Stats{
+		words:  words + prevWS,
+		lines:  lines,
+		nbytes: nbytes,
+	}, nil
 }
