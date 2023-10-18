@@ -30,24 +30,25 @@ func main() {
 	}
 
 	var (
-		f   *os.File
-		err error
+		file *os.File
+		err  error
 	)
 
 	filename := flag.Arg(0)
+	input := os.Stdin
+
 	if filename != "" {
-		f, err = os.Open(filename)
+		file, err = os.Open(filename)
 		if err != nil {
-			log.Fatal("failed to read file: ", err)
+			log.Fatalf("failed to read file: %s", err)
 		}
-		defer f.Close()
-	} else {
-		f = os.Stdin
+		defer file.Close()
+		input = file
 	}
 
-	stats, err := fetchStats(f)
+	stats, err := fetchStats(input)
 	if err != nil {
-		log.Fatal("failed to fetch stats: ", err)
+		log.Fatalf("failed to fetch stats: %s", err)
 	}
 
 	fmt.Print(formatStats(opts, filename, stats))
@@ -75,7 +76,7 @@ func fetchStats(f *os.File) (Stats, error) {
 			if err == io.EOF {
 				break
 			}
-			return Stats{words: 0, lines: 0, nbytes: 0}, err
+			return Stats{}, err
 		}
 
 		nbytes++
