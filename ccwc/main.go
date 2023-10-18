@@ -103,6 +103,9 @@ func formatStats(opts Opts, filename string, stats Stats) string {
 	if opts.countBytes {
 		v = append(v, fmt.Sprint(stats.nbytes))
 	}
+	if !opts.countLines && !opts.countWords && !opts.countBytes {
+		v = append(v, fmt.Sprint(stats.lines, stats.words, stats.nbytes))
+	}
 
 	output := strings.Join(v, "\t")
 
