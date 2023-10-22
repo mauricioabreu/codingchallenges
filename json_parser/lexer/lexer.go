@@ -16,14 +16,14 @@ type Token struct {
 }
 
 type Lexer struct {
-	input        string
+	input        []byte
 	position     int
 	readPosition int
 	ch           byte
 	size         int
 }
 
-func NewLexer(input string) *Lexer {
+func NewLexer(input []byte) *Lexer {
 	lxr := &Lexer{input: input}
 	lxr.size = len(input)
 	lxr.nextChar()

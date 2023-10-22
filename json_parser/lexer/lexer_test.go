@@ -8,7 +8,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	lxr := lexer.NewLexer("{}")
+	lxr := lexer.NewLexer([]byte("{}"))
 	assert.Equal(t, lxr.NextToken(), lexer.Token{Type: lexer.TOKEN_LEFT_BRACE, Value: "{"})
 	assert.Equal(t, lxr.NextToken(), lexer.Token{Type: lexer.TOKEN_RIGHT_BRACE, Value: "}"})
 }
