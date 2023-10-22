@@ -9,16 +9,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidJSON(t *testing.T) {
+func TestStep1ValidJSON(t *testing.T) {
 	data, err := os.ReadFile("../tests/step1/valid.json")
 	assert.NoError(t, err)
 	psr := parser.NewParser(lexer.NewLexer(data))
 	assert.True(t, psr.Parse())
 }
 
-func TestInvalidJSON(t *testing.T) {
+func TestStep1InvalidJSON(t *testing.T) {
 	data, err := os.ReadFile("../tests/step1/invalid.json")
 	assert.NoError(t, err)
 	psr := parser.NewParser(lexer.NewLexer(data))
 	assert.False(t, psr.Parse())
+}
+
+func TestStep2ValidJSON(t *testing.T) {
+	data, err := os.ReadFile("../tests/step2/valid.json")
+	assert.NoError(t, err)
+	psr := parser.NewParser(lexer.NewLexer(data))
+	assert.True(t, psr.Parse())
 }

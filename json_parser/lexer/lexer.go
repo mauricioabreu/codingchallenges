@@ -7,6 +7,8 @@ type TokenType int
 const (
 	TOKEN_LEFT_BRACE TokenType = iota
 	TOKEN_RIGHT_BRACE
+	TOKEN_STRING
+	TOKEN_COLON
 	TOKEN_EOF
 )
 
@@ -46,6 +48,19 @@ func (lxr *Lexer) skipWhitespace() {
 	}
 }
 
+func (lxr *Lexer) readString() string {
+	startPosition := lxr.readPosition + 1
+
+	for {
+		lxr.nextChar()
+		if lxr.ch == '"' || lxr.ch == 0 {
+			break
+		}
+	}
+
+	return string(lxr.input[startPosition:lxr.readPosition])
+}
+
 func (lxr *Lexer) NextToken() Token {
 	lxr.skipWhitespace()
 
@@ -56,6 +71,11 @@ func (lxr *Lexer) NextToken() Token {
 		token = Token{Type: TOKEN_LEFT_BRACE, Value: "{"}
 	case '}':
 		token = Token{Type: TOKEN_RIGHT_BRACE, Value: "}"}
+	case '"':
+		value := lxr.readString()
+		token = Token{Type: TOKEN_STRING, Value: value}
+	case ':':
+		token = Token{Type: TOKEN_COLON, Value: ":"}
 	default:
 		token.Type = TOKEN_EOF
 	}
