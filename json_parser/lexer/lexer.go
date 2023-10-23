@@ -11,6 +11,8 @@ const (
 	TOKEN_COLON
 	TOKEN_COMMA
 	TOKEN_NUMBER
+	TOKEN_TRUE
+	TOKEN_FALSE
 	TOKEN_EOF
 )
 
@@ -44,6 +46,12 @@ func (lxr *Lexer) nextChar() {
 	lxr.readPosition += 1
 }
 
+func (lxr *Lexer) advancePosition(n int) {
+	for i := 0; i < n; i++ {
+		lxr.nextChar()
+	}
+}
+
 func (lxr *Lexer) skipWhitespace() {
 	for unicode.IsSpace(rune(lxr.ch)) {
 		lxr.nextChar()
@@ -73,6 +81,29 @@ func (lxr *Lexer) readNumber() string {
 	return string(lxr.input[startPosition:lxr.position])
 }
 
+func (lxr *Lexer) readBoolean() (TokenType, string) {
+	if lxr.matchWord("true") {
+		return TOKEN_TRUE, "true"
+	} else if lxr.matchWord("false") {
+		return TOKEN_FALSE, "false"
+	}
+
+	return TOKEN_EOF, ""
+}
+
+func (lxr *Lexer) matchWord(word string) bool {
+	if lxr.size-lxr.position < len(word) {
+		return false
+	}
+
+	if string(lxr.input[lxr.position:lxr.position+len(word)]) == word {
+		lxr.advancePosition(len(word))
+		return true
+	}
+
+	return false
+}
+
 func (lxr *Lexer) NextToken() Token {
 	lxr.skipWhitespace()
 
@@ -93,6 +124,9 @@ func (lxr *Lexer) NextToken() Token {
 	case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		value := lxr.readNumber()
 		token = Token{Type: TOKEN_NUMBER, Value: value}
+	case 't', 'f':
+		tokenType, value := lxr.readBoolean()
+		token = Token{Type: tokenType, Value: value}
 	default:
 		token.Type = TOKEN_EOF
 	}
