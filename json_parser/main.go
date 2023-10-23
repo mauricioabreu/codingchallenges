@@ -27,8 +27,7 @@ func main() {
 		input = os.Stdin
 	}
 
-	lxr := lexer.NewLexer(input)
-	psr := parser.NewParser(lxr)
+	psr := parser.NewParser(lexer.NewLexer(input))
 
 	if psr.Parse() {
 		fmt.Println("Valid JSON")
