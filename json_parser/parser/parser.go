@@ -53,6 +53,35 @@ func (psr *Parser) parseObject() bool {
 	return true
 }
 
+func (psr *Parser) parseArray() bool {
+	if psr.currToken.Type != lexer.TOKEN_LEFT_BRACKET {
+		return false
+	}
+
+	psr.nextToken()
+
+	// empty array
+	if psr.currToken.Type == lexer.TOKEN_RIGHT_BRACKET {
+		psr.nextToken()
+		return true
+	}
+
+	for {
+		if !psr.parseValue() {
+			return false
+		}
+
+		if psr.currToken.Type == lexer.TOKEN_COMMA {
+			psr.nextToken()
+		} else if psr.currToken.Type == lexer.TOKEN_RIGHT_BRACKET {
+			psr.nextToken()
+			return true
+		} else {
+			return false
+		}
+	}
+}
+
 func (psr *Parser) parseKeyValue() bool {
 	if psr.currToken.Type != lexer.TOKEN_STRING {
 		return false
@@ -66,12 +95,18 @@ func (psr *Parser) parseKeyValue() bool {
 
 	psr.nextToken()
 
+	return psr.parseValue()
+}
+
+func (psr *Parser) parseValue() bool {
 	switch psr.currToken.Type {
 	case lexer.TOKEN_STRING, lexer.TOKEN_NUMBER, lexer.TOKEN_TRUE, lexer.TOKEN_FALSE, lexer.TOKEN_NULL:
 		psr.nextToken()
 		return true
 	case lexer.TOKEN_LEFT_BRACE:
 		return psr.parseObject()
+	case lexer.TOKEN_LEFT_BRACKET:
+		return psr.parseArray()
 	default:
 		return false
 	}

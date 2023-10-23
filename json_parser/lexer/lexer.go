@@ -7,6 +7,8 @@ type TokenType int
 const (
 	TOKEN_LEFT_BRACE TokenType = iota
 	TOKEN_RIGHT_BRACE
+	TOKEN_LEFT_BRACKET
+	TOKEN_RIGHT_BRACKET
 	TOKEN_STRING
 	TOKEN_COLON
 	TOKEN_COMMA
@@ -129,6 +131,10 @@ func (lxr *Lexer) NextToken() Token {
 		token = Token{Type: TOKEN_LEFT_BRACE, Value: "{"}
 	case '}':
 		token = Token{Type: TOKEN_RIGHT_BRACE, Value: "}"}
+	case '[':
+		token = Token{Type: TOKEN_LEFT_BRACKET, Value: "["}
+	case ']':
+		token = Token{Type: TOKEN_RIGHT_BRACKET, Value: "]"}
 	case '"':
 		value := lxr.readString()
 		token = Token{Type: TOKEN_STRING, Value: value}

@@ -65,9 +65,23 @@ func TestStep3InvalidJSON(t *testing.T) {
 	assert.False(t, psr.Parse())
 }
 
-func TestStep4ValidJSON(t *testing.T) {
+func TestStep4ValidJSON1(t *testing.T) {
 	data, err := os.ReadFile("../tests/step4/valid.json")
 	assert.NoError(t, err)
 	psr := parser.NewParser(lexer.NewLexer(data))
 	assert.True(t, psr.Parse())
+}
+
+func TestStep4ValidJSON2(t *testing.T) {
+	data, err := os.ReadFile("../tests/step4/valid2.json")
+	assert.NoError(t, err)
+	psr := parser.NewParser(lexer.NewLexer(data))
+	assert.True(t, psr.Parse())
+}
+
+func TestStep4InvalidJSON(t *testing.T) {
+	data, err := os.ReadFile("../tests/step4/invalid.json")
+	assert.NoError(t, err)
+	psr := parser.NewParser(lexer.NewLexer(data))
+	assert.False(t, psr.Parse())
 }
