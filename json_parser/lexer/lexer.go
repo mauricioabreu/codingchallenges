@@ -9,6 +9,7 @@ const (
 	TOKEN_RIGHT_BRACE
 	TOKEN_STRING
 	TOKEN_COLON
+	TOKEN_COMMA
 	TOKEN_EOF
 )
 
@@ -76,6 +77,8 @@ func (lxr *Lexer) NextToken() Token {
 		token = Token{Type: TOKEN_STRING, Value: value}
 	case ':':
 		token = Token{Type: TOKEN_COLON, Value: ":"}
+	case ',':
+		token = Token{Type: TOKEN_COMMA, Value: ","}
 	default:
 		token.Type = TOKEN_EOF
 	}

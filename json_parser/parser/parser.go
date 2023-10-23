@@ -29,9 +29,18 @@ func (psr *Parser) parseObject() bool {
 
 	psr.nextToken()
 
-	if psr.currToken.Type == lexer.TOKEN_STRING {
+	for psr.currToken.Type == lexer.TOKEN_STRING {
 		if !psr.parseKeyValue() {
 			return false
+		}
+
+		// if next token is a comma, we have to look for another key-value pair
+		if psr.currToken.Type == lexer.TOKEN_COMMA {
+			psr.nextToken()
+
+			if psr.currToken.Type != lexer.TOKEN_STRING {
+				return false
+			}
 		}
 	}
 
