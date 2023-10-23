@@ -70,6 +70,8 @@ func (psr *Parser) parseKeyValue() bool {
 	case lexer.TOKEN_STRING, lexer.TOKEN_NUMBER, lexer.TOKEN_TRUE, lexer.TOKEN_FALSE, lexer.TOKEN_NULL:
 		psr.nextToken()
 		return true
+	case lexer.TOKEN_LEFT_BRACE:
+		return psr.parseObject()
 	default:
 		return false
 	}
