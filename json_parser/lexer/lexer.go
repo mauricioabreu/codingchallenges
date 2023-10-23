@@ -10,6 +10,7 @@ const (
 	TOKEN_STRING
 	TOKEN_COLON
 	TOKEN_COMMA
+	TOKEN_NUMBER
 	TOKEN_EOF
 )
 
@@ -62,6 +63,16 @@ func (lxr *Lexer) readString() string {
 	return string(lxr.input[startPosition:lxr.readPosition])
 }
 
+func (lxr *Lexer) readNumber() string {
+	startPosition := lxr.position
+
+	for unicode.IsDigit(rune(lxr.ch)) || lxr.ch == '-' {
+		lxr.nextChar()
+	}
+
+	return string(lxr.input[startPosition:lxr.position])
+}
+
 func (lxr *Lexer) NextToken() Token {
 	lxr.skipWhitespace()
 
@@ -79,6 +90,9 @@ func (lxr *Lexer) NextToken() Token {
 		token = Token{Type: TOKEN_COLON, Value: ":"}
 	case ',':
 		token = Token{Type: TOKEN_COMMA, Value: ","}
+	case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		value := lxr.readNumber()
+		token = Token{Type: TOKEN_NUMBER, Value: value}
 	default:
 		token.Type = TOKEN_EOF
 	}
