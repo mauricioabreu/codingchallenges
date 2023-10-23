@@ -67,7 +67,7 @@ func (psr *Parser) parseKeyValue() bool {
 	psr.nextToken()
 
 	switch psr.currToken.Type {
-	case lexer.TOKEN_STRING, lexer.TOKEN_NUMBER, lexer.TOKEN_TRUE, lexer.TOKEN_FALSE:
+	case lexer.TOKEN_STRING, lexer.TOKEN_NUMBER, lexer.TOKEN_TRUE, lexer.TOKEN_FALSE, lexer.TOKEN_NULL:
 		psr.nextToken()
 		return true
 	default:

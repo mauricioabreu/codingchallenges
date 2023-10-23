@@ -13,6 +13,7 @@ const (
 	TOKEN_NUMBER
 	TOKEN_TRUE
 	TOKEN_FALSE
+	TOKEN_NULL
 	TOKEN_EOF
 )
 
@@ -91,17 +92,31 @@ func (lxr *Lexer) readBoolean() (TokenType, string) {
 	return TOKEN_EOF, ""
 }
 
+func (lxr *Lexer) readNull() string {
+	if lxr.matchWord("null") {
+		return "null"
+	}
+	return ""
+}
+
 func (lxr *Lexer) matchWord(word string) bool {
 	if lxr.size-lxr.position < len(word) {
 		return false
 	}
 
-	if string(lxr.input[lxr.position:lxr.position+len(word)]) == word {
-		lxr.advancePosition(len(word))
-		return true
+	if string(lxr.input[lxr.position:lxr.position+len(word)]) != word {
+		return false
 	}
 
-	return false
+	nextChar := lxr.input[lxr.position+len(word)]
+	// next character can't be a valid identifier char, like "trueK" or "falseee"
+	if unicode.IsLetter(rune(nextChar)) || unicode.IsDigit(rune(nextChar)) || nextChar == '_' {
+		return false
+	}
+
+	lxr.advancePosition(len(word))
+
+	return true
 }
 
 func (lxr *Lexer) NextToken() Token {
@@ -127,6 +142,9 @@ func (lxr *Lexer) NextToken() Token {
 	case 't', 'f':
 		tokenType, value := lxr.readBoolean()
 		token = Token{Type: tokenType, Value: value}
+	case 'n':
+		value := lxr.readNull()
+		token = Token{Type: TOKEN_NULL, Value: value}
 	default:
 		token.Type = TOKEN_EOF
 	}

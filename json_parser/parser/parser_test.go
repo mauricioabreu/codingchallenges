@@ -57,3 +57,10 @@ func TestStep3ValidJSON(t *testing.T) {
 	psr := parser.NewParser(lexer.NewLexer(data))
 	assert.True(t, psr.Parse())
 }
+
+func TestStep3InvalidJSON(t *testing.T) {
+	data, err := os.ReadFile("../tests/step3/invalid.json")
+	assert.NoError(t, err)
+	psr := parser.NewParser(lexer.NewLexer(data))
+	assert.False(t, psr.Parse())
+}
