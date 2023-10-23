@@ -1,6 +1,9 @@
 package lexer
 
-import "unicode"
+import (
+	"io"
+	"unicode"
+)
 
 type TokenType int
 
@@ -32,10 +35,15 @@ type Lexer struct {
 	size         int
 }
 
-func NewLexer(input []byte) *Lexer {
+func NewLexer(r io.Reader) *Lexer {
+	input, err := io.ReadAll(r)
+	if err != nil {
+		panic("failed to read input")
+	}
 	lxr := &Lexer{input: input}
 	lxr.size = len(input)
 	lxr.nextChar()
+
 	return lxr
 }
 
