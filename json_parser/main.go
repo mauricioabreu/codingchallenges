@@ -14,6 +14,7 @@ import (
 func main() {
 	var input io.Reader
 
+	flag.Parse()
 	filename := flag.Arg(0)
 
 	if filename != "" {
