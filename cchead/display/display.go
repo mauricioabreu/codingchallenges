@@ -6,9 +6,10 @@ import (
 	"io"
 )
 
-func Display(r *bufio.Reader, w io.Writer, lines int) error {
+func Display(r io.Reader, w io.Writer, lines int) error {
+	bufReader := bufio.NewReader(r)
 	for i := 0; i < lines; i++ {
-		line, err := r.ReadString('\n')
+		line, err := bufReader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
 				break
