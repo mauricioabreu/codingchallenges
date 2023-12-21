@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -17,31 +18,43 @@ func main() {
 	c := flag.Int("c", 0, "Number of bytes")
 
 	flag.Parse()
+	filenames := flag.Args()
 
-	var (
-		file *os.File
-		err  error
-	)
-
-	filename := flag.Arg(0)
-	var input io.Reader = os.Stdin
-
-	if filename != "" {
-		file, err = os.Open(filename)
-		if err != nil {
-			log.Fatalf("failed to read file: %s", err)
+	if len(filenames) == 0 {
+		handleStdIn(*n, *c)
+	} else {
+		for _, filename := range filenames {
+			handleFile(filename, len(filenames) > 1, *n, *c)
 		}
-		defer file.Close()
-		input = bufio.NewReader(file)
+	}
+}
+
+func handleStdIn(nLines, nBytes int) {
+	if err := handle(os.Stdin, "standard input", nLines, nBytes); err != nil {
+		log.Fatalf("Error processing stdin: %s", err)
+	}
+}
+
+func handleFile(filename string, addHeader bool, nLines, nBytes int) {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("Error processing file '%s': %s", filename, err)
+	}
+	defer file.Close()
+
+	if addHeader {
+		fmt.Printf("==> %s <==\n", filename)
 	}
 
-	if *c > 0 {
-		if err := display.DisplayBytes(input, os.Stdout, *c); err != nil {
-			log.Fatal(err)
-		}
+	if err := handle(bufio.NewReader(file), filename, nLines, nBytes); err != nil {
+		log.Fatalf("Error processing file '%s': %s", filename, err)
+	}
+}
+
+func handle(input io.Reader, filename string, nLines int, nBytes int) error {
+	if nBytes > 0 {
+		return display.DisplayBytes(input, os.Stdout, nBytes)
 	} else {
-		if display.DisplayLines(input, os.Stdout, *n); err != nil {
-			log.Fatal(err)
-		}
+		return display.DisplayLines(input, os.Stdout, nLines)
 	}
 }
