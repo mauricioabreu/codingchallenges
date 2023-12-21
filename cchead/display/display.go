@@ -2,7 +2,6 @@ package display
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 )
 
@@ -17,7 +16,7 @@ func DisplayLines(r io.Reader, w io.Writer, nLines int) error {
 			return err
 		}
 
-		if _, err := fmt.Fprint(w, line); err != nil {
+		if _, err := w.Write([]byte(line)); err != nil {
 			return err
 		}
 	}
@@ -34,7 +33,7 @@ func DisplayBytes(r io.Reader, w io.Writer, nBytes int) error {
 		return err
 	}
 
-	if _, err := fmt.Fprint(w, string(content[:bytesRead])); err != nil {
+	if _, err := w.Write(content[:bytesRead]); err != nil {
 		return err
 	}
 
