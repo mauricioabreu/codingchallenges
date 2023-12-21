@@ -14,6 +14,7 @@ import (
 
 func main() {
 	n := flag.Int("n", 10, "Number of lines")
+	c := flag.Int("c", 0, "Number of bytes")
 
 	flag.Parse()
 
@@ -34,5 +35,13 @@ func main() {
 		input = bufio.NewReader(file)
 	}
 
-	display.Display(input, os.Stdout, *n)
+	if *c > 0 {
+		if err := display.DisplayBytes(input, os.Stdout, *c); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if display.DisplayLines(input, os.Stdout, *n); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
